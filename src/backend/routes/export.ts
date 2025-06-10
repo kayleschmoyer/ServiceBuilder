@@ -1,7 +1,8 @@
 import express from 'express';
 const { Router } = express;
 import type { Request, Response } from 'express';
-import mssql from 'mssql';
+import { withDb } from '../utils/db';
+import { DbConfig } from '../config';
 import { applyColumnMap, formatCSV, formatJSON, ColumnMap } from '../services/formatter';
 import { uploadViaSFTP, SftpConfig } from '../services/sftp';
 
@@ -19,20 +20,15 @@ router.post('/', async function (
   }
 
   try {
-    const pool = await mssql.connect({
+    const dbConfig: DbConfig = {
+      host: connection.host,
+      port: parseInt(connection.port, 10),
       user: connection.user,
       password: connection.password,
-      server: connection.host,
-      port: parseInt(connection.port, 10),
       database: connection.database,
-      options: {
-        encrypt: false,
-        trustServerCertificate: true
-      }
-    });
+    };
 
-    const result = await pool.request().query(query);
-    await pool.close();
+    const result = await withDb(dbConfig, pool => pool.request().query(query));
 
     let rows = result.recordset as any[];
 
