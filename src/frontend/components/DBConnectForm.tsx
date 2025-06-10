@@ -8,13 +8,19 @@ export function DBConnectForm({ onConnect }: { onConnect: (config: any) => void 
   const [password, setPassword] = useState('');
 
   return (
-    <form onSubmit={e => { e.preventDefault(); onConnect({ host, port, database, user, password }); }}>
-      <input placeholder="Host" value={host} onChange={e => setHost(e.target.value)} />
-      <input placeholder="Port" value={port} onChange={e => setPort(e.target.value)} />
-      <input placeholder="Database" value={database} onChange={e => setDatabase(e.target.value)} />
-      <input placeholder="User" value={user} onChange={e => setUser(e.target.value)} />
-      <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-      <button type="submit">Connect</button>
+    <form
+      className="connect-form"
+      onSubmit={e => {
+        e.preventDefault();
+        onConnect({ host, port, database, user, password });
+      }}
+    >
+      <input className="input-host" placeholder="Host" value={host} onChange={e => setHost(e.target.value)} />
+      <input className="input-port" placeholder="Port" value={port} onChange={e => setPort(e.target.value)} />
+      <input className="input-db" placeholder="Database" value={database} onChange={e => setDatabase(e.target.value)} />
+      <input className="input-user" placeholder="User" value={user} onChange={e => setUser(e.target.value)} />
+      <input className="input-pass" placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
+      <button className="connect-btn" type="submit">Connect</button>
     </form>
   );
 }

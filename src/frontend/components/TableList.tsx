@@ -1,8 +1,8 @@
 export function TableList({ tables, onSelect }: { tables: string[]; onSelect: (t: string) => void }) {
   return (
-    <ul>
+    <ul className="table-list">
       {tables.map(t => (
-        <li key={t} onClick={() => onSelect(t)} style={{ cursor: 'pointer' }}>{t}</li>
+        <li className="table-item" key={t} onClick={() => onSelect(t)} style={{ cursor: 'pointer' }}>{t}</li>
       ))}
     </ul>
   );

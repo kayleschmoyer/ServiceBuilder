@@ -6,5 +6,22 @@ export const openApiDoc: OpenAPIObject = {
     title: 'ServiceBuilder API',
     version: '1.0.0'
   },
-  paths: {}
+  paths: {
+    '/api/connect': {
+      post: {
+        summary: 'Connect to database',
+        requestBody: {
+          description: 'Connection settings',
+          content: { 'application/json': { schema: { type: 'object' } } }
+        },
+        responses: { '200': { description: 'ok' } }
+      }
+    },
+    '/api/tables': {
+      get: { summary: 'List tables', responses: { '200': { description: 'table list' } } }
+    }
+  }
 };
+
+// In-memory record of generated endpoint definitions
+export const generatedApis: Record<string, { sql: string }> = {};

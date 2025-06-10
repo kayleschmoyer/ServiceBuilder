@@ -21,7 +21,7 @@ function App() {
       <aside className="sidebar">Setup | Table | API | Preview</aside>
       <main className="main">
         {step === 0 && <StepConnect onNext={handleConnect} />}
-        {step === 1 && <StepSelect tables={tables} onNext={() => setStep(2)} />}
+        {step === 1 && <StepSelect tables={tables} onNext={(_t) => setStep(2)} />}
         {step === 2 && <StepConfigure onNext={() => setStep(3)} />}
         {step === 3 && <StepReview onGenerate={() => setStep(0)} />}
       </main>
