@@ -1,13 +1,17 @@
 import express from 'express';
-import tablesRoute from './routes/tables'; // ✅ NOT .ts — just the route path
+import morgan from 'morgan';
+import tablesRoute from './routes/tables';
 import exportRoute from './routes/export';
+import connectRoute from './routes/connect';
+import { PORT } from './config';
 
 const app = express();
-const PORT = 5000;
 
+app.use(morgan('dev'));
 app.use(express.json());
 
 // ✅ Correct way to mount routers
+app.use('/api/connect', connectRoute);
 app.use('/api/tables', tablesRoute);
 app.use('/api/export', exportRoute);
 
