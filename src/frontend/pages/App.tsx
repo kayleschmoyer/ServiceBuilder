@@ -4,10 +4,12 @@ import { StepConnect } from '../components/wizard/StepConnect';
 import { StepSelect } from '../components/wizard/StepSelect';
 import { StepConfigure } from '../components/wizard/StepConfigure';
 import { StepReview } from '../components/wizard/StepReview';
+import { StepExport } from '../components/wizard/StepExport';
 
 function App() {
   const [step, setStep] = useState(0);
   const [tables, setTables] = useState<string[]>([]);
+  const [exportConfig, setExportConfig] = useState<any>(null);
 
   const handleConnect = async (config: any) => {
     await connect(config);
@@ -23,7 +25,10 @@ function App() {
         {step === 0 && <StepConnect onNext={handleConnect} />}
         {step === 1 && <StepSelect tables={tables} onNext={(_t) => setStep(2)} />}
         {step === 2 && <StepConfigure onNext={() => setStep(3)} />}
-        {step === 3 && <StepReview onGenerate={() => setStep(0)} />}
+        {step === 3 && (
+          <StepExport columns={[]} onNext={(cfg) => { setExportConfig(cfg); setStep(4); }} />
+        )}
+        {step === 4 && <StepReview exportConfig={exportConfig} onGenerate={() => setStep(0)} />}
       </main>
     </div>
   );

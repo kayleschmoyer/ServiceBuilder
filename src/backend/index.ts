@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import { router as apiRouter } from './routes/api';
+import { router as exportRouter } from './routes/export';
 import swaggerUi from 'swagger-ui-express';
 import { openApiDoc } from './openapi';
 import dotenv from 'dotenv';
@@ -32,6 +33,7 @@ export const setPrisma = (client: PrismaClient) => { prisma = client; };
 
 // Mount API routes and Swagger UI
 app.use('/api', apiRouter);
+app.use('/api/export', exportRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openApiDoc));
 
 const PORT = process.env.PORT || 3001;
