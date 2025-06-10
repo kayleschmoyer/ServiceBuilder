@@ -1,15 +1,23 @@
-import { Router } from 'express';
+import express from 'express';
+const { Router } = express;
+import type { Request, Response } from 'express';
 import mssql from 'mssql';
 import { applyColumnMap, formatCSV, formatJSON, ColumnMap } from '../services/formatter';
 import { uploadViaSFTP, SftpConfig } from '../services/sftp';
 
-export const router = Router();
+const router = Router();
 
-router.post('/', async (req, res) => {
+router.post('/', async function (
+  req: Request,
+  res: Response
+): Promise<void> {
   const { connection, query, export: exportOpts, sftp } = req.body;
+
   if (!connection || !query) {
-    return res.status(400).json({ error: 'Missing connection or query' });
+    res.status(400).json({ error: 'Missing connection or query' });
+    return;
   }
+
   try {
     const pool = await mssql.connect({
       user: connection.user,
@@ -17,42 +25,55 @@ router.post('/', async (req, res) => {
       server: connection.host,
       port: parseInt(connection.port, 10),
       database: connection.database,
-      options: { encrypt: false }
+      options: {
+        encrypt: false,
+        trustServerCertificate: true
+      }
     });
+
     const result = await pool.request().query(query);
     await pool.close();
-    const rows = result.recordset;
-    const mapped = exportOpts?.columns
-      ? applyColumnMap(rows, exportOpts.columns as ColumnMap[])
-      : rows;
-    const ordered = mapped; // reorder already handled in applyColumnMap order
-    let content = '';
-    if (exportOpts?.format === 'json') {
-      content = formatJSON(ordered);
+
+    let rows = result.recordset as any[];
+
+    if (exportOpts?.columns) {
+      rows = applyColumnMap(rows, exportOpts.columns as ColumnMap[]);
+    }
+
+    let fileContent: string;
+    const format = exportOpts?.format || 'csv';
+    const delimiter = exportOpts?.delimiter || ',';
+    const filename = exportOpts?.filename || `export_${Date.now()}.${format}`;
+
+    if (format === 'json') {
+      fileContent = formatJSON(rows);
     } else {
-      content = formatCSV(ordered, exportOpts?.delimiter || ',');
+      fileContent = formatCSV(rows, delimiter);
     }
-    const buffer = Buffer.from(content, 'utf8');
-    let uploaded = false;
-    let uploadError: string | undefined;
-    if (sftp?.enabled) {
-      try {
-        const cfg: SftpConfig = {
-          host: sftp.host,
-          port: parseInt(sftp.port, 10) || 22,
-          username: sftp.username,
-          password: sftp.password,
-          remoteDir: sftp.remoteDir
-        };
-        await uploadViaSFTP(cfg, `${exportOpts.fileName}.${exportOpts.format}`, buffer);
-        uploaded = true;
-      } catch (e) {
-        uploadError = String(e);
-      }
+
+    if (sftp) {
+      const sftpConfig: SftpConfig = {
+        host: sftp.host,
+        port: parseInt(sftp.port, 10),
+        username: sftp.username,
+        password: sftp.password,
+        remoteDir: `${sftp.path}/${filename}`
+      };
+
+      await uploadViaSFTP(sftpConfig, filename, Buffer.from(fileContent, 'utf8'));
     }
-    const preview = ordered.slice(0, 5);
-    res.json({ preview, uploaded, uploadError });
-  } catch (e) {
-    res.status(400).json({ error: String(e) });
+
+    res.json({
+      status: 'success',
+      preview: rows.slice(0, 5),
+      format,
+      filename
+    });
+
+  } catch (error: any) {
+    console.error('[EXPORT ERROR]', error);
+    res.status(500).json({ error: error.message || 'Unexpected server error' });
   }
-});
+}); // 👈 closes router.post()
+
+export default router;

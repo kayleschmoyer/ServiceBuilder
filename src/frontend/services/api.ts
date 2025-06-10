@@ -10,10 +10,19 @@ export async function connect(config: any) {
   return res.json();
 }
 
-export async function fetchTables() {
-  const res = await fetch(`${API_URL}/api/tables`);
+export async function fetchTables(connection: any) {
+  const res = await fetch('/api/tables', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(connection)
+  });
+
+  if (!res.ok) throw new Error('Failed to fetch tables');
   return res.json();
 }
+
 
 export async function fetchColumns(table: string) {
   const res = await fetch(`${API_URL}/api/columns?table=${encodeURIComponent(table)}`);
