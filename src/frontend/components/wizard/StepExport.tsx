@@ -48,55 +48,69 @@ export function StepExport({ columns, onNext }: { columns: string[]; onNext: (op
   return (
     <div className="wizard-step">
       <h2>Export Options</h2>
-      <div className="export-form">
-        <label>
-          Format
-          <select value={format} onChange={e => setFormat(e.target.value as any)}>
-            <option value="csv">CSV</option>
-            <option value="json">JSON</option>
-          </select>
-        </label>
-        {format === 'csv' && (
-          <label>
-            Delimiter
-            <input value={delimiter} onChange={e => setDelimiter(e.target.value)} />
-          </label>
-        )}
-        <label>
-          File Name Pattern
-          <input value={fileName} onChange={e => setFileName(e.target.value)} />
-        </label>
-        <h3>Columns</h3>
-        <ul className="column-config">
-          {colConfig.map((c, idx) => (
-            <li key={c.name}>
-              <input value={c.rename} onChange={e => {
-                const arr = [...colConfig];
-                arr[idx] = { ...arr[idx], rename: e.target.value };
-                setColConfig(arr);
-              }} />
-              <button type="button" onClick={() => move(idx, -1)}>↑</button>
-              <button type="button" onClick={() => move(idx, 1)}>↓</button>
-            </li>
-          ))}
-        </ul>
+      <div className="form-group">
+        <label>Format</label>
+        <select value={format} onChange={e => setFormat(e.target.value as any)}>
+          <option value="csv">CSV</option>
+          <option value="json">JSON</option>
+        </select>
       </div>
+      {format === 'csv' && (
+        <div className="form-group">
+          <label>Delimiter</label>
+          <input value={delimiter} onChange={e => setDelimiter(e.target.value)} />
+        </div>
+      )}
+      <div className="form-group">
+        <label>File Name Pattern</label>
+        <input value={fileName} onChange={e => setFileName(e.target.value)} placeholder="export_YYYYMMDD_HHmmss" />
+      </div>
+      <h3>Columns</h3>
+      <ul className="column-config">
+        {colConfig.map((c, idx) => (
+          <li key={c.name}>
+            <input value={c.rename} onChange={e => {
+              const arr = [...colConfig];
+              arr[idx] = { ...arr[idx], rename: e.target.value };
+              setColConfig(arr);
+            }} />
+            <button type="button" onClick={() => move(idx, -1)}>↑</button>
+            <button type="button" onClick={() => move(idx, 1)}>↓</button>
+          </li>
+        ))}
+      </ul>
       <h2>SFTP Delivery</h2>
-      <label>
-        <input type="checkbox" checked={sftpEnabled} onChange={e => setSftpEnabled(e.target.checked)} />
-        Send to SFTP after export
-      </label>
+      <div className="form-group">
+        <label>
+          <input type="checkbox" checked={sftpEnabled} onChange={e => setSftpEnabled(e.target.checked)} /> Send to SFTP after export
+        </label>
+      </div>
       {sftpEnabled && (
         <div className="sftp-form">
-          <input placeholder="Host" value={sftpHost} onChange={e => setSftpHost(e.target.value)} />
-          <input placeholder="Port" value={sftpPort} onChange={e => setSftpPort(e.target.value)} />
-          <input placeholder="Username" value={sftpUser} onChange={e => setSftpUser(e.target.value)} />
-          <input placeholder="Password" type="password" value={sftpPass} onChange={e => setSftpPass(e.target.value)} />
-          <input placeholder="Remote directory" value={sftpDir} onChange={e => setSftpDir(e.target.value)} />
+          <div className="form-group">
+            <label>Host</label>
+            <input placeholder="host" value={sftpHost} onChange={e => setSftpHost(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Port</label>
+            <input placeholder="22" value={sftpPort} onChange={e => setSftpPort(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Username</label>
+            <input value={sftpUser} onChange={e => setSftpUser(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Password</label>
+            <input type="password" value={sftpPass} onChange={e => setSftpPass(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Remote directory</label>
+            <input value={sftpDir} onChange={e => setSftpDir(e.target.value)} />
+          </div>
         </div>
       )}
       <button
-        className="next-btn"
+        className="btn btn-primary"
         onClick={() =>
           onNext({
             export: { format, delimiter, fileName, columns: colConfig },

@@ -26,13 +26,20 @@ export function StepSelect({ tables, onNext }: { tables: string[]; onNext: (tabl
   return (
     <div className="wizard-step">
       <h2>Select Table or Query</h2>
-      <select className="table-select" onChange={e => handleSelect(e.target.value)} value={selected}>
-        <option value="">--choose table--</option>
-        {tables.map(t => (
-          <option key={t} value={t}>{t}</option>
-        ))}
-      </select>
-      {loading && <div className="loading">Loading...</div>}
+      <div className="form-group">
+        <label>Table</label>
+        <select value={selected} onChange={e => handleSelect(e.target.value)}>
+          <option value="">-- choose table --</option>
+          {tables.map(t => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+      </div>
+      {loading && (
+        <div className="loading">
+          <div className="spinner" /> Loading...
+        </div>
+      )}
       {error && <div className="error">{error}</div>}
       {!!columns.length && (
         <ul className="column-list">
@@ -41,8 +48,11 @@ export function StepSelect({ tables, onNext }: { tables: string[]; onNext: (tabl
           ))}
         </ul>
       )}
-      <textarea placeholder="Or write custom SQL" className="query-input" />
-      <button className="next-btn" onClick={() => onNext(selected)}>Next</button>
+      <div className="form-group">
+        <label>Custom SQL</label>
+        <textarea className="query-input" placeholder="SELECT * FROM my_table" />
+      </div>
+      <button className="btn btn-primary" onClick={() => onNext(selected)} disabled={!selected}>Next</button>
     </div>
   );
 }
