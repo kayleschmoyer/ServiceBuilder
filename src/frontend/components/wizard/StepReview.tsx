@@ -9,6 +9,9 @@ export function StepReview({ onGenerate, exportConfig }: { onGenerate: () => voi
 
   const sql = 'SELECT * FROM my_table';
   const path = '/api/generated/sample';
+  const fileName = exportConfig?.export?.fileName || 'export';
+  const format = exportConfig?.export?.format || 'csv';
+  const sftp = exportConfig?.sftp;
 
   const handleTest = async () => {
     setLoading(true);
@@ -30,16 +33,32 @@ export function StepReview({ onGenerate, exportConfig }: { onGenerate: () => voi
 
   return (
     <div className="wizard-step">
-      <h2>Review &amp; Generate API</h2>
-      <pre className="sql-preview">{sql}</pre>
-      <div className="endpoint-path">Path: {path}</div>
-      <button className="test-btn" onClick={handleTest}>Test</button>
-      {loading && <div className="loading">Loading...</div>}
-      {error && <div className="error">{error}</div>}
-      {!!result && (
-        <pre className="result-preview">{JSON.stringify(result, null, 2)}</pre>
+      <h2>Review &amp; Generate</h2>
+      <div className="form-group">
+        <label>SQL</label>
+        <pre className="sql-preview">{sql}</pre>
+      </div>
+      <div className="form-group">
+        <label>Output File</label>
+        <div>{fileName}.{format}</div>
+      </div>
+      {sftp?.enabled && (
+        <div className="form-group">
+          <label>SFTP Destination</label>
+          <div>{sftp.username}@{sftp.host}:{sftp.port}{sftp.remoteDir}</div>
+        </div>
       )}
-      <button className="generate-btn" onClick={onGenerate}>Generate</button>
+      <button className="btn btn-secondary" onClick={handleTest}>Test</button>
+      {loading && (
+        <div className="loading">
+          <div className="spinner" /> Loading...
+        </div>
+      )}
+      {error && <div className="error">{error}</div>}
+      {!!result.length && (
+        <pre className="result-preview">{JSON.stringify(result.slice(0,5), null, 2)}</pre>
+      )}
+      <button className="btn btn-primary" onClick={onGenerate}>Generate</button>
     </div>
   );
 }
