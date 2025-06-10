@@ -19,6 +19,13 @@ export const openApiDoc: OpenAPIObject = {
     },
     '/api/tables': {
       get: { summary: 'List tables', responses: { '200': { description: 'table list' } } }
+    },
+    '/api/export': {
+      post: {
+        summary: 'Run query and export results',
+        requestBody: { description: 'Export config', content: { 'application/json': { schema: { type: 'object' } } } },
+        responses: { '200': { description: 'Exported' } }
+      }
     }
   }
 };

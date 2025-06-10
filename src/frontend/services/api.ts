@@ -19,3 +19,12 @@ export async function fetchColumns(table: string) {
   const res = await fetch(`${API_URL}/api/columns?table=${encodeURIComponent(table)}`);
   return res.json();
 }
+
+export async function runExport(config: any) {
+  const res = await fetch(`${API_URL}/api/export`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(config)
+  });
+  return res.json();
+}

@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { fetchTables } from '../../services/api';
+import { fetchTables, runExport } from '../../services/api';
 
 // Review step shows the SQL, endpoint path and lets the user test it
-export function StepReview({ onGenerate }: { onGenerate: () => void }) {
+export function StepReview({ onGenerate, exportConfig }: { onGenerate: () => void; exportConfig: any }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<any[]>([]);
@@ -14,8 +14,12 @@ export function StepReview({ onGenerate }: { onGenerate: () => void }) {
     setLoading(true);
     setError('');
     try {
-      // Pretend to call the generated endpoint; here we fetch tables as a stub
-      const data = await fetchTables();
+      let data;
+      if (exportConfig) {
+        data = await runExport(exportConfig);
+      } else {
+        data = await fetchTables();
+      }
       setResult(data);
     } catch (e) {
       setError('Failed to test endpoint');
@@ -32,7 +36,9 @@ export function StepReview({ onGenerate }: { onGenerate: () => void }) {
       <button className="test-btn" onClick={handleTest}>Test</button>
       {loading && <div className="loading">Loading...</div>}
       {error && <div className="error">{error}</div>}
-      {!!result.length && <pre className="result-preview">{JSON.stringify(result, null, 2)}</pre>}
+      {!!result && (
+        <pre className="result-preview">{JSON.stringify(result, null, 2)}</pre>
+      )}
       <button className="generate-btn" onClick={onGenerate}>Generate</button>
     </div>
   );
